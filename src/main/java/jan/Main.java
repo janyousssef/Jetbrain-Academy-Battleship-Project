@@ -10,7 +10,7 @@ class GameBoard {
     private GameBoard() {
         initializeBoard();
     }
-
+    //test
     static void printBoard() {
         clearConsole();
         printFirstRow();
