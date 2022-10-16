@@ -1,14 +1,14 @@
 package jan;
 
+import java.util.Arrays;
+
 class GameBoard {
-    public static final String EMPTY_LINES= "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+    public static final String EMPTY_LINES = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
     private static final int LENGTH = 10;
-    private static final int[][] cells =
-            new int[LENGTH + 1][LENGTH + 1];
-    static GameBoard gameBoard = new GameBoard();
+    private static final int[][] cells = new int[LENGTH + 1][LENGTH + 1];
 
     private GameBoard() {
-    initializeBoard();
+        initializeBoard();
     }
 
     static void printBoard() {
@@ -24,40 +24,34 @@ class GameBoard {
     private static void printOtherRows() {
         for (int i = 1; i < LENGTH + 1; i++) {
             for (int j = 0; j < LENGTH + 1; j++) {
-                    System.out.print((char) cells[i][j] + " ");
+                System.out.print((char) cells[i][j] + " ");
             }
             System.out.println();
         }
     }
 
     private static void printFirstRow() {
-        System.out.print((char)cells [0][0] + " ");
-        for (int i = 1; i < LENGTH + 1; i++){
-            System.out.print(cells [0][i] + " ");
+        System.out.print((char) cells[0][0] + " ");
+        for (int i = 1; i < LENGTH + 1; i++) {
+            System.out.print(cells[0][i] + " ");
         }
         System.out.println();
     }
 
-    public static GameBoard getGameBoard() {
-        return gameBoard;
-    }
-
     private void initializeBoard() {
+        initializeCells();
         initialize00Corner();
         initializeFirstColumn();
         initializeFirstRow();
-        initializeCells();
     }
 
     private void initialize00Corner() {
-        cells[0][0] = '#';
+        cells[0][0] = ' ';
     }
 
     private void initializeCells() {
-        for (int i = 1; i < LENGTH + 1; i++) {
-            for (int j = 1; j < LENGTH + 1; j++) {
-                cells[i][j] = '~';
-            }
+        for (int i = 0; i < LENGTH + 1; i++) {
+            Arrays.fill(cells[i], '~');
         }
     }
 
