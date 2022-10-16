@@ -2,31 +2,28 @@ package jan;
 
 import java.util.Arrays;
 
-class GameBoard {
-    private static final GameBoard gameBoard = new GameBoard();
+class BoardPrinter {
+
     public final String EMPTY_LINES = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
-    private final int LENGTH = 10;
-    private final int[][] cells = new int[LENGTH + 1][LENGTH + 1];
+    public final int LENGTH;
+    public final int[][] cells;
 
-    private GameBoard() {
-        initializeBoard();
-    }
-
-    public static GameBoard getGameBoard() {
-        return gameBoard;
+    public BoardPrinter(GameBoard gameBoard) {
+        this.LENGTH= gameBoard.getLENGTH();
+        this.cells= gameBoard.getCells();
     }
 
     void printBoard() {
         clearConsole();
-        printFirstRow();
-        printOtherRows();
+        printFirstRow(LENGTH, cells);
+        printOtherRows(LENGTH, cells);
     }
 
     private void clearConsole() {
         System.out.println(EMPTY_LINES);
     }
 
-    private void printOtherRows() {
+    private void printOtherRows(int LENGTH, int[][] cells) {
         for (int i = 1; i < LENGTH + 1; i++) {
             for (int j = 0; j < LENGTH + 1; j++) {
                 System.out.print((char) cells[i][j] + " ");
@@ -35,12 +32,38 @@ class GameBoard {
         }
     }
 
-    private void printFirstRow() {
+    private void printFirstRow(int LENGTH, int[][] cells) {
         System.out.print((char) cells[0][0] + " ");
         for (int i = 1; i < LENGTH + 1; i++) {
             System.out.print(cells[0][i] + " ");
         }
         System.out.println();
+    }
+}
+
+class GameBoard {
+    private static final GameBoard gameBoard = new GameBoard();
+    private static final BoardPrinter printer = new BoardPrinter(gameBoard);
+    private final int LENGTH = 10;
+    private final int[][] cells = new int[LENGTH + 1][LENGTH + 1];
+    private GameBoard() {
+        initializeBoard();
+    }
+
+    public int getLENGTH() {
+        return LENGTH;
+    }
+
+    public int[][] getCells() {
+        return cells;
+    }
+
+    public static GameBoard getGameBoard() {
+        return gameBoard;
+    }
+
+    public BoardPrinter getPrinter() {
+        return printer;
     }
 
     private void initializeBoard() {
@@ -77,7 +100,8 @@ class GameBoard {
 public class Main {
     public static void main(String[] args) {
         GameBoard board = GameBoard.getGameBoard();
-        board.printBoard();
+        BoardPrinter printer = board.getPrinter();
+        printer.printBoard();
 
     }
 }
