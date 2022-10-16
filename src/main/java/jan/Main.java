@@ -6,11 +6,12 @@ class GameBoard {
     public static final String EMPTY_LINES = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
     private static final int LENGTH = 10;
     private static final int[][] cells = new int[LENGTH + 1][LENGTH + 1];
+    static GameBoard gameBoard = new GameBoard();
 
     private GameBoard() {
         initializeBoard();
     }
-    //test
+
     static void printBoard() {
         clearConsole();
         printFirstRow();
