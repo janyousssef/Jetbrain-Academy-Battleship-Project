@@ -3,26 +3,30 @@ package jan;
 import java.util.Arrays;
 
 class GameBoard {
-    public static final String EMPTY_LINES = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
-    private static final int LENGTH = 10;
-    private static final int[][] cells = new int[LENGTH + 1][LENGTH + 1];
-    static GameBoard gameBoard = new GameBoard();
+    private static final GameBoard gameBoard = new GameBoard();
+    public final String EMPTY_LINES = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+    private final int LENGTH = 10;
+    private final int[][] cells = new int[LENGTH + 1][LENGTH + 1];
 
     private GameBoard() {
         initializeBoard();
     }
 
-    static void printBoard() {
+    public static GameBoard getGameBoard() {
+        return gameBoard;
+    }
+
+    void printBoard() {
         clearConsole();
         printFirstRow();
         printOtherRows();
     }
 
-    private static void clearConsole() {
+    private void clearConsole() {
         System.out.println(EMPTY_LINES);
     }
 
-    private static void printOtherRows() {
+    private void printOtherRows() {
         for (int i = 1; i < LENGTH + 1; i++) {
             for (int j = 0; j < LENGTH + 1; j++) {
                 System.out.print((char) cells[i][j] + " ");
@@ -31,7 +35,7 @@ class GameBoard {
         }
     }
 
-    private static void printFirstRow() {
+    private void printFirstRow() {
         System.out.print((char) cells[0][0] + " ");
         for (int i = 1; i < LENGTH + 1; i++) {
             System.out.print(cells[0][i] + " ");
@@ -72,8 +76,8 @@ class GameBoard {
 
 public class Main {
     public static void main(String[] args) {
-        GameBoard.printBoard();
-
+        GameBoard board = GameBoard.getGameBoard();
+        board.printBoard();
 
     }
 }
