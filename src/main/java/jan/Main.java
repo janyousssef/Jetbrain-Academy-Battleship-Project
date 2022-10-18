@@ -1,4 +1,3 @@
-
 package jan;
 
 import java.util.Arrays;
@@ -24,49 +23,67 @@ class Position {
     private static boolean validCoordinates(int[][] cells, Position p1, Position p2) {
         boolean onSameRow = p1.i == p2.i;
         boolean onSameColumn = p1.j == p2.j;
-        boolean enoughSpace = (int)(distance(p1.i, p1.j,p2.i,p2.j)+1) == Ship.getCurrentShip().getLength();
+        boolean enoughSpace = (int) (distance(p1.i, p1.j, p2.i, p2.j) + 1) == Ship.getCurrentShip().getLength();
+
         return (onSameRow || onSameColumn) && enoughSpace && noCollision(cells, p1, p2);
     }
 
     private static boolean noCollision(int[][] cells, Position p1, Position p2) {
-        if (p1.i == p2.i) {
-            for (int index = min(p1.j, p2.j); index <= max(p1.j, p2.j); index++) {
-                if (collidesOrTouchesOtherShip(p1.i, index, cells)) return false;
-            }
-        } else {
-                for (int index = min(p1.i, p2.i); index <= max(p1.i, p2.i); index++) {
-                    if (collidesOrTouchesOtherShip(index, p1.j, cells)) return false;
-                }
-            }
-            return true;
-        }
+        if (p1.i == p2.i)
+            return noHorizontalCollision(cells, p1, p2);
+        return noVerticalCollision(cells, p1, p2);
+    }
 
-    private static boolean collidesOrTouchesOtherShip(int row, int column, int[][] cells) {
-        boolean up = row == 1 || cells[row -1][column] == '~';
-        boolean down = row == 10 || cells[row +1][column] == '~';
-        boolean left = column == 1 || cells[row][column-1] == '~';
-        boolean right = column == 10 || cells[row][column+1] == '~';
+    private static boolean noVerticalCollision(int[][] cells, Position p1, Position p2) {
+        for (int index = min(p1.i, p2.i); index <= max(p1.i, p2.i); index++) {
+            if (collidesWithOrTouchesOtherShips(index, p1.j, cells)) return false;
+        }
+        return true;
+    }
+
+    private static boolean noHorizontalCollision(int[][] cells, Position p1, Position p2) {
+        for (int index = min(p1.j, p2.j); index <= max(p1.j, p2.j); index++) {
+            if (collidesWithOrTouchesOtherShips(p1.i, index, cells)) return false;
+        }
+        return true;
+    }
+
+    private static boolean collidesWithOrTouchesOtherShips(int row, int column, int[][] cells) {
+        boolean up = row == 1 || cells[row - 1][column] == '~';
+        boolean down = row == 10 || cells[row + 1][column] == '~';
+        boolean left = column == 1 || cells[row][column - 1] == '~';
+        boolean right = column == 10 || cells[row][column + 1] == '~';
+
         return !(up && down && left && right);
     }
 
-    private static boolean notOutsideBounds (Position p){
-            boolean iCorrect = (p.i >= 1) && (p.i <= 10);
-            boolean jCorrect = (p.j >= 1) && (p.j <= 10);
+    private static boolean notOutsideBounds(Position p) {
+        boolean iCorrect = (p.i >= 1) && (p.i <= 10);
+        boolean jCorrect = (p.j >= 1) && (p.j <= 10);
 
-            return iCorrect && jCorrect;
-        }
+        return iCorrect && jCorrect;
+    }
 
     public static void placeAndMoveToNextShip(int[][] cells, Position p1, Position p2) {
         if (p1.i == p2.i) {
-            for (int index = min(p1.j, p2.j); index <= max(p1.j, p2.j); index++) {
-                cells[p1.i][index]='O';
-            }
+            placeHorizontally(cells, p1, p2);
         } else {
-            for (int index = min(p1.i, p2.i); index <= max(p1.i, p2.i); index++) {
-                cells[index][p1.j]='O';
-            }
+            placeVertically(cells, p1, p2);
         }
         Ship.incrementIndex();
+    }
+
+
+    private static void placeVertically(int[][] cells, Position p1, Position p2) {
+        for (int index = min(p1.i, p2.i); index <= max(p1.i, p2.i); index++) {
+            cells[index][p1.j] = 'O';
+        }
+    }
+
+    private static void placeHorizontally(int[][] cells, Position p1, Position p2) {
+        for (int index = min(p1.j, p2.j); index <= max(p1.j, p2.j); index++) {
+            cells[p1.i][index] = 'O';
+        }
     }
 }
 
@@ -76,14 +93,14 @@ class Ship {
     private static int index = 0;
     private final int length;
     private final String name;
-
+    private static final Ship[] ships ={new Ship(5, "Aircraft Carrier"), new Ship(4, "Battleship"), new Ship(3, "Submarine"), new Ship(3, "Cruiser"), new Ship(2, "Destroyer")};
     private Ship(int length, String name) {
         this.length = length;
         this.name = name;
     }
 
     static Ship[] getShips() {
-        return new Ship[]{new Ship(5, "Aircraft Carrier"), new Ship(4, "Battleship"), new Ship(3, "Submarine"), new Ship(3, "Cruiser"), new Ship(2, "Destroyer")};
+        return ships;
     }
 
     static Ship getCurrentShip() {
@@ -94,16 +111,16 @@ class Ship {
         return index;
     }
 
+    static void incrementIndex() {
+        index += 1;
+    }
+
     public int getLength() {
         return length;
     }
 
     public String getName() {
         return name;
-    }
-
-    static void incrementIndex() {
-        index += 1;
     }
 
 }
@@ -122,19 +139,13 @@ class BoardPrinter {
     void printBoard() {
         printFirstRow(LENGTH, cells);
         printOtherRows(LENGTH, cells);
-        //clearConsole();
-    }
-
-    private void clearConsole() {
-        String EMPTY_LINES = "\n";
-        System.out.println(EMPTY_LINES);
     }
 
     private void printOtherRows(int LENGTH, int[][] cells) {
         for (int i = 1; i < LENGTH + 1; i++) {
             for (int j = 0; j < LENGTH + 1; j++) {
-                if(j<LENGTH)System.out.print((char) cells[i][j] + " ");
-                else System.out.print((char)cells[i][j]);
+                if (j < LENGTH) System.out.print((char) cells[i][j] + " ");
+                else System.out.print((char) cells[i][j]);
             }
             System.out.println();
         }
@@ -143,7 +154,7 @@ class BoardPrinter {
     private void printFirstRow(int LENGTH, int[][] cells) {
         System.out.print((char) cells[0][0] + " ");
         for (int i = 1; i < LENGTH + 1; i++) {
-            if(i<LENGTH)System.out.print(cells[0][i] + " ");
+            if (i < LENGTH) System.out.print(cells[0][i] + " ");
             else System.out.print(cells[0][i]);
         }
         System.out.println();
@@ -200,18 +211,10 @@ class GameBoard {
     }
 
     public void placeNextShip() {
-        Scanner sc = new Scanner(System.in);
-        int i1, i2, j1, j2;
 
-        String temp = sc.next();
-        i1 = Character.toLowerCase(temp.charAt(0)) - 'a' + 1;
-        j1 = Integer.parseInt(temp.substring(1));
+        Position p1 = getPositionFromUser();
 
-        temp = sc.next();
-        i2 = Character.toLowerCase(temp.charAt(0)) - 'a' + 1;
-        j2 = Integer.parseInt(temp.substring(1));
-        Position p1 = new Position(i1, j1);
-        Position p2 = new Position(i2, j2);
+        Position p2 = getPositionFromUser();
 
         if (Position.canPlace(cells, p1, p2)) {
             Position.placeAndMoveToNextShip(cells, p1, p2);
@@ -222,27 +225,32 @@ class GameBoard {
 
 
     }
-    public void test() {
-        cells[5][6] = 'z';
 
+    private static Position getPositionFromUser() {
+        Scanner sc = new Scanner(System.in);
+        int i, j;
+        String temp = sc.next();
+        i = Character.toLowerCase(temp.charAt(0)) - 'a' + 1;
+        j = Integer.parseInt(temp.substring(1));
+        return new Position(i, j);
 
     }
+//    public void test() {
+//        cells[5][6] = 'z';
+//
+//
+//    }
 }
 
 public class Main {
     public static void main(String[] args) {
         GameBoard board = GameBoard.getGameBoard();
         board.print();
-
-        while (Ship.getIndex()<5){
-            System.out.println();
-            System.out.println(String.format("Enter the coordinates of the %s (%s cells):\n",Ship.getCurrentShip().getName(),Ship.getCurrentShip().getLength()));
+        while (Ship.getIndex() < 5) {
+            System.out.printf("\nEnter the coordinates of the %s (%s cells):\n%n",
+                    Ship.getCurrentShip().getName(), Ship.getCurrentShip().getLength());
             board.placeNextShip();
         }
-
-
-
-
     }
 }
 
