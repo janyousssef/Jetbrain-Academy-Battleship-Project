@@ -5,20 +5,19 @@ import java.util.Arrays;
 
 class BoardPrinter {
 
-    private static final GameBoard gameBoard = GameBoard.getGameBoard();
-    private static final BoardPrinter printer = new BoardPrinter();
 
-    private BoardPrinter() {
-    }
+    private final int LENGTH;
+    private final int[][] cells;
 
-    public static BoardPrinter getBoardPrinter() {
-        return printer;
+    BoardPrinter(int LENGTH, int[][] cells) {
+        this.LENGTH = LENGTH;
+        this.cells = cells;
     }
 
     void printBoard() {
         clearConsole();
-        printFirstRow(gameBoard.getLENGTH(), gameBoard.getCells());
-        printOtherRows(gameBoard.getLENGTH(), gameBoard.getCells());
+        printFirstRow(LENGTH, cells);
+        printOtherRows(LENGTH, cells);
     }
 
     private void clearConsole() {
@@ -46,7 +45,7 @@ class BoardPrinter {
 
 class GameBoard {
     private static final GameBoard gameBoard = new GameBoard();
-    private static final BoardPrinter printer = BoardPrinter.getBoardPrinter();
+    private static final BoardPrinter printer = new BoardPrinter(gameBoard.LENGTH, gameBoard.cells);
     private final int LENGTH = 10;
     private final int[][] cells = new int[LENGTH + 1][LENGTH + 1];
 
@@ -58,16 +57,9 @@ class GameBoard {
         return gameBoard;
     }
 
-    public int getLENGTH() {
-        return LENGTH;
-    }
 
-    public int[][] getCells() {
-        return cells;
-    }
-
-    public BoardPrinter getPrinter() {
-        return printer;
+    void print() {
+        printer.printBoard();
     }
 
     private void initializeBoard() {
@@ -109,10 +101,10 @@ class GameBoard {
 public class Main {
     public static void main(String[] args) {
         GameBoard board = GameBoard.getGameBoard();
-        BoardPrinter printer = board.getPrinter();
-        printer.printBoard();
+        board.print();
+
 //        board.test();
-//        printer.printBoard();
+        board.print();
 
 
     }
