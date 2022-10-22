@@ -4,13 +4,22 @@ import java.util.Arrays;
 import java.util.Scanner;
 
 import static java.awt.geom.Point2D.distance;
-import static java.lang.Math.*;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
+class Globals {
+    static final char EMPTY_CELL = '~';
+    static final char SHIP_CELL = 'O';
+    static final char MISSED_CELL = 'M';
+    static final char HIT_SHIP_CELL = 'X';
+}
 
 class Position {
     final int i;
     final int j;
 
     public Position(int i, int j) {
+
         this.i = i;
         this.j = j;
     }
@@ -49,15 +58,15 @@ class Position {
     }
 
     private static boolean collidesWithOrTouchesOtherShips(int row, int column, int[][] cells) {
-        boolean up = row == 1 || cells[row - 1][column] == '~';
-        boolean down = row == 10 || cells[row + 1][column] == '~';
-        boolean left = column == 1 || cells[row][column - 1] == '~';
-        boolean right = column == 10 || cells[row][column + 1] == '~';
+        boolean up = row == 1 || cells[row - 1][column] == Globals.EMPTY_CELL;
+        boolean down = row == 10 || cells[row + 1][column] == Globals.EMPTY_CELL;
+        boolean left = column == 1 || cells[row][column - 1] == Globals.EMPTY_CELL;
+        boolean right = column == 10 || cells[row][column + 1] == Globals.EMPTY_CELL;
 
         return !(up && down && left && right);
     }
 
-    private static boolean notOutsideBounds(Position p) {
+    static boolean notOutsideBounds(Position p) {
         boolean iCorrect = (p.i >= 1) && (p.i <= 10);
         boolean jCorrect = (p.j >= 1) && (p.j <= 10);
 
@@ -76,13 +85,13 @@ class Position {
 
     private static void placeVertically(int[][] cells, Position p1, Position p2) {
         for (int index = min(p1.i, p2.i); index <= max(p1.i, p2.i); index++) {
-            cells[index][p1.j] = 'O';
+            cells[index][p1.j] = Globals.SHIP_CELL;
         }
     }
 
     private static void placeHorizontally(int[][] cells, Position p1, Position p2) {
         for (int index = min(p1.j, p2.j); index <= max(p1.j, p2.j); index++) {
-            cells[p1.i][index] = 'O';
+            cells[p1.i][index] = Globals.SHIP_CELL;
         }
     }
 }
@@ -90,10 +99,11 @@ class Position {
 
 class Ship {
 
+    private static final Ship[] ships = {new Ship(5, "Aircraft Carrier"), new Ship(4, "Battleship"), new Ship(3, "Submarine"), new Ship(3, "Cruiser"), new Ship(2, "Destroyer")};
     private static int index = 0;
     private final int length;
     private final String name;
-    private static final Ship[] ships ={new Ship(5, "Aircraft Carrier"), new Ship(4, "Battleship"), new Ship(3, "Submarine"), new Ship(3, "Cruiser"), new Ship(2, "Destroyer")};
+
     private Ship(int length, String name) {
         this.length = length;
         this.name = name;
@@ -162,6 +172,7 @@ class BoardPrinter {
 }
 
 class GameBoard {
+    private static Scanner sc = new Scanner(System.in);
     private static final GameBoard gameBoard = new GameBoard();
     private static final BoardPrinter printer = new BoardPrinter(gameBoard.LENGTH, gameBoard.cells);
     private final int LENGTH = 10;
@@ -176,6 +187,14 @@ class GameBoard {
         return gameBoard;
     }
 
+    private static Position getPositionFromUser() {
+        int i, j;
+        String temp = sc.next();
+        i = Character.toLowerCase(temp.charAt(0)) - 'a' + 1;
+        j = Integer.parseInt(temp.substring(1));
+        return new Position(i, j);
+
+    }
 
     void print() {
         printer.printBoard();
@@ -194,7 +213,7 @@ class GameBoard {
 
     private void initializeCells() {
         for (int i = 0; i < LENGTH + 1; i++) {
-            Arrays.fill(cells[i], '~');
+            Arrays.fill(cells[i], Globals.EMPTY_CELL);
         }
     }
 
@@ -226,14 +245,27 @@ class GameBoard {
 
     }
 
-    private static Position getPositionFromUser() {
-        Scanner sc = new Scanner(System.in);
-        int i, j;
-        String temp = sc.next();
-        i = Character.toLowerCase(temp.charAt(0)) - 'a' + 1;
-        j = Integer.parseInt(temp.substring(1));
-        return new Position(i, j);
+    public void shoot() {
+        System.out.println("Take a shot!");
+        Position p = getPositionFromUser();
+        if (!Position.notOutsideBounds(p)) {
+            System.out.println("Error! You entered the wrong coordinates! Try again:");
+            return;
+        }
 
+        if (hitShip(p)) {
+            System.out.println("You hit a ship!");
+            cells[p.i][p.j] = Globals.HIT_SHIP_CELL;
+        } else {
+            cells[p.i][p.j] = Globals.MISSED_CELL;
+            System.out.println("You missed!");
+        }
+        print();
+
+    }
+
+    private boolean hitShip(Position p) {
+        return cells[p.i][p.j] == Globals.SHIP_CELL;
     }
 //    public void test() {
 //        cells[5][6] = 'z';
@@ -251,6 +283,15 @@ public class Main {
                     Ship.getCurrentShip().getName(), Ship.getCurrentShip().getLength());
             board.placeNextShip();
         }
+
+        System.out.println("The game starts!");
+        board.print();
+
+        while (true) {
+            board.shoot();
+
+        }
+
     }
 }
 
