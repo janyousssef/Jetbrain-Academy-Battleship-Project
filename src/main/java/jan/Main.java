@@ -38,8 +38,7 @@ class Position {
     }
 
     private static boolean noCollision(int[][] cells, Position p1, Position p2) {
-        if (p1.i == p2.i)
-            return noHorizontalCollision(cells, p1, p2);
+        if (p1.i == p2.i) return noHorizontalCollision(cells, p1, p2);
         return noVerticalCollision(cells, p1, p2);
     }
 
@@ -79,7 +78,7 @@ class Position {
         } else {
             placeVertically(cells, p1, p2);
         }
-        Ship.incrementIndex();
+
     }
 
 
@@ -172,11 +171,13 @@ class BoardPrinter {
 }
 
 class GameBoard {
-    private static Scanner sc = new Scanner(System.in);
+    private static final Scanner sc = new Scanner(System.in);
     private static final GameBoard gameBoard = new GameBoard();
-    private static final BoardPrinter printer = new BoardPrinter(gameBoard.LENGTH, gameBoard.cells);
+    private static final BoardPrinter noFogPrinter = new BoardPrinter(gameBoard.LENGTH, gameBoard.cellsNoFog);
+    private static final BoardPrinter fogPrinter = new BoardPrinter(gameBoard.LENGTH, gameBoard.cellsWithFog);
     private final int LENGTH = 10;
-    private final int[][] cells = new int[LENGTH + 1][LENGTH + 1];
+    private final int[][] cellsNoFog = new int[LENGTH + 1][LENGTH + 1];
+    private final int[][] cellsWithFog = new int[LENGTH + 1][LENGTH + 1];
 
 
     private GameBoard() {
@@ -196,8 +197,12 @@ class GameBoard {
 
     }
 
-    void print() {
-        printer.printBoard();
+    void printNoFog() {
+        noFogPrinter.printBoard();
+    }
+
+    void printWithFog() {
+        fogPrinter.printBoard();
     }
 
     private void initializeBoard() {
@@ -208,24 +213,34 @@ class GameBoard {
     }
 
     private void initialize00Corner() {
-        cells[0][0] = ' ';
+        cellsNoFog[0][0] = ' ';
+        cellsWithFog[0][0] = ' ';
     }
 
     private void initializeCells() {
         for (int i = 0; i < LENGTH + 1; i++) {
-            Arrays.fill(cells[i], Globals.EMPTY_CELL);
+            Arrays.fill(cellsNoFog[i], Globals.EMPTY_CELL);
+        }
+        for (int i = 0; i < LENGTH + 1; i++) {
+            Arrays.fill(cellsWithFog[i], Globals.EMPTY_CELL);
         }
     }
 
     private void initializeFirstColumn() {
         for (int i = 1; i < LENGTH + 1; i++) {
-            cells[i][0] = 'A' + i - 1;
+            cellsNoFog[i][0] = 'A' + i - 1;
+        }
+        for (int i = 1; i < LENGTH + 1; i++) {
+            cellsWithFog[i][0] = 'A' + i - 1;
         }
     }
 
     private void initializeFirstRow() {
         for (int i = 1; i < LENGTH + 1; i++) {
-            cells[0][i] = i;
+            cellsNoFog[0][i] = i;
+        }
+        for (int i = 1; i < LENGTH + 1; i++) {
+            cellsWithFog[0][i] = i;
         }
     }
 
@@ -235,9 +250,11 @@ class GameBoard {
 
         Position p2 = getPositionFromUser();
 
-        if (Position.canPlace(cells, p1, p2)) {
-            Position.placeAndMoveToNextShip(cells, p1, p2);
-            this.print();
+        if (Position.canPlace(cellsNoFog, p1, p2)) {
+            Position.placeAndMoveToNextShip(cellsNoFog, p1, p2);
+            //Position.placeAndMoveToNextShip(cellsWithFog, p1, p2);
+            this.printNoFog();
+            Ship.incrementIndex();
         } else {
             System.out.println("\nError! Unable to place ship");
         }
@@ -254,21 +271,26 @@ class GameBoard {
         }
 
         if (hitShip(p)) {
+            cellsNoFog[p.i][p.j] = Globals.HIT_SHIP_CELL;
+            cellsWithFog[p.i][p.j] = Globals.HIT_SHIP_CELL;
+
             System.out.println("You hit a ship!");
-            cells[p.i][p.j] = Globals.HIT_SHIP_CELL;
+            printNoFog();
         } else {
-            cells[p.i][p.j] = Globals.MISSED_CELL;
+            cellsNoFog[p.i][p.j] = Globals.MISSED_CELL;
+            cellsWithFog[p.i][p.j] = Globals.MISSED_CELL;
+
             System.out.println("You missed!");
+            printNoFog();
         }
-        print();
 
     }
 
     private boolean hitShip(Position p) {
-        return cells[p.i][p.j] == Globals.SHIP_CELL;
+        return cellsNoFog[p.i][p.j] == Globals.SHIP_CELL;
     }
 //    public void test() {
-//        cells[5][6] = 'z';
+//        cellsNoFog[5][6] = 'z';
 //
 //
 //    }
@@ -277,15 +299,14 @@ class GameBoard {
 public class Main {
     public static void main(String[] args) {
         GameBoard board = GameBoard.getGameBoard();
-        board.print();
+        board.printNoFog();
         while (Ship.getIndex() < 5) {
-            System.out.printf("\nEnter the coordinates of the %s (%s cells):\n%n",
-                    Ship.getCurrentShip().getName(), Ship.getCurrentShip().getLength());
+            System.out.printf("\nEnter the coordinates of the %s (%s cells):\n%n", Ship.getCurrentShip().getName(), Ship.getCurrentShip().getLength());
             board.placeNextShip();
         }
 
         System.out.println("The game starts!");
-        board.print();
+        board.printWithFog();
 
         while (true) {
             board.shoot();
