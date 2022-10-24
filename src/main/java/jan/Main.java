@@ -124,6 +124,23 @@ class Ship {
         index += 1;
     }
 
+    public static boolean sunkAShip(Position p, int[][] cells) {
+        for (int i = 0; (i + p.i) >= 0 && (i + p.i) <= 10 && !(cells[i + p.i][p.j] == Globals.EMPTY_CELL || cells[i + p.i][p.j] == Globals.MISSED_CELL); i++) {
+                if (cells[i + p.i][p.j] == Globals.SHIP_CELL) return false;
+        }
+        for (int i = 0; (i + p.i) >= 0 && (i + p.i) <= 10 && !(cells[i + p.i][p.j] == Globals.EMPTY_CELL || cells[i + p.i][p.j] == Globals.MISSED_CELL); i--) {
+                if (cells[i + p.i][p.j] == Globals.SHIP_CELL) return false;
+        }
+        for (int i = 0; (i + p.j) >= 0 && (i + p.j) <= 10 && !(cells[p.i][i + p.j] == Globals.EMPTY_CELL || cells[p.i][i + p.j] == Globals.MISSED_CELL); i++) {
+                if (cells[p.i][i + p.j] == Globals.SHIP_CELL) return false;
+        }
+        for (int i = 0; (i + p.j) >= 0 && (i + p.j) <= 10 && !(cells[p.i][i + p.j] == Globals.EMPTY_CELL || cells[p.i][i + p.j] == Globals.MISSED_CELL); i--) {
+            if (cells[p.i][i + p.j] == Globals.SHIP_CELL) return false;
+        }
+
+        return true;
+    }
+
     public int getLength() {
         return length;
     }
@@ -178,6 +195,7 @@ class GameBoard {
     private final int LENGTH = 10;
     private final int[][] cellsNoFog = new int[LENGTH + 1][LENGTH + 1];
     private final int[][] cellsWithFog = new int[LENGTH + 1][LENGTH + 1];
+    private int numShipsSunk = 0;
 
 
     private GameBoard() {
@@ -270,24 +288,37 @@ class GameBoard {
             return;
         }
 
-        if (hitShip(p)) {
+        if (hitShip(p).equals("new hit") || hitShip(p).equals("re-hit")) {
+            boolean newHit=hitShip(p).equals("new hit");
             cellsNoFog[p.i][p.j] = Globals.HIT_SHIP_CELL;
             cellsWithFog[p.i][p.j] = Globals.HIT_SHIP_CELL;
+            printWithFog();
 
-            System.out.println("You hit a ship!");
-            printNoFog();
+            if (newHit && Ship.sunkAShip(p, cellsNoFog)) {
+                numShipsSunk++;
+                System.out.println("You sank a ship! Specify a new target:");
+            } else {
+                System.out.println("You hit a ship!");
+            }
+
         } else {
             cellsNoFog[p.i][p.j] = Globals.MISSED_CELL;
             cellsWithFog[p.i][p.j] = Globals.MISSED_CELL;
-
+            printWithFog();
             System.out.println("You missed!");
-            printNoFog();
+
         }
+    }
+
+    private String hitShip(Position p) {
+        if (cellsNoFog[p.i][p.j] == Globals.SHIP_CELL) return "new hit";
+        if (cellsNoFog[p.i][p.j] == Globals.HIT_SHIP_CELL) return "re-hit";
+        return "no hit";
 
     }
 
-    private boolean hitShip(Position p) {
-        return cellsNoFog[p.i][p.j] == Globals.SHIP_CELL;
+    public int numShipsSunk() {
+        return numShipsSunk;
     }
 //    public void test() {
 //        cellsNoFog[5][6] = 'z';
@@ -308,11 +339,11 @@ public class Main {
         System.out.println("The game starts!");
         board.printWithFog();
 
-        while (true) {
+        while (board.numShipsSunk() < 5) {
             board.shoot();
 
         }
-
+        System.out.println("You sank the last ship. You won. Congratulations!");
     }
 }
 
