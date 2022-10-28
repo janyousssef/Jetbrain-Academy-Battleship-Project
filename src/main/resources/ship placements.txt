@@ -1,0 +1,2 @@
+Placement set 1: a1 a5 c1 c4 e1 e3 j1 j3 j7 j8
+Placement set 2: j5 j9 h1 e1 f3 f5 h5 h7 b5 b6
