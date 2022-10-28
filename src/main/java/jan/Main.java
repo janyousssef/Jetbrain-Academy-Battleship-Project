@@ -160,15 +160,13 @@ class Ship {
 class BoardPrinter {
 
 
-
-
-    BoardPrinter( ) {
+    BoardPrinter() {
 
     }
 
-    void printBoard(int [][] cells) {
-        printFirstRow(cells.length-1, cells);
-        printOtherRows(cells.length-1, cells);
+    void printBoard(int[][] cells) {
+        printFirstRow(cells.length - 1, cells);
+        printOtherRows(cells.length - 1, cells);
     }
 
     private void printOtherRows(int LENGTH, int[][] cells) {
@@ -193,9 +191,9 @@ class BoardPrinter {
 
 class GameBoard {
     private static final Scanner sc = new Scanner(System.in);
+    private static final BoardPrinter printer = new BoardPrinter();
     private final int LENGTH = 10;
     private final int[][] cellsNoFog = new int[LENGTH + 1][LENGTH + 1];
-    private final BoardPrinter printer = new BoardPrinter();
     private final int[][] cellsWithFog = new int[LENGTH + 1][LENGTH + 1];
 
     private int numShipsSunk = 0;
@@ -214,20 +212,16 @@ class GameBoard {
 
     }
 
+    static void print(int[][] cells) {
+        printer.printBoard(cells);
+    }
+
     public int[][] getCellsNoFog() {
         return cellsNoFog;
     }
 
     public int[][] getCellsWithFog() {
         return cellsWithFog;
-    }
-
-    void print(int [][] cells) {
-        printer.printBoard(cells);
-    }
-
-    void print2(int [][] cells) {
-        printer.printBoard(cells);
     }
 
     private void initializeBoard() {
@@ -277,8 +271,7 @@ class GameBoard {
 
         if (Position.canPlace(cellsNoFog, p1, p2)) {
             Position.placeAndMoveToNextShip(cellsNoFog, p1, p2);
-            //Position.placeAndMoveToNextShip(cellsWithFog, p1, p2);
-            this.print(cellsNoFog);
+            print(cellsNoFog);
             Ship.incrementIndex();
         } else {
             System.out.println("\nError! Unable to place ship");
@@ -288,7 +281,6 @@ class GameBoard {
     }
 
     public void shoot() {
-        System.out.println("Take a shot!");
         Position p = getPositionFromUser();
         if (!Position.notOutsideBounds(p)) {
             System.out.println("Error! You entered the wrong coordinates! Try again:");
@@ -299,7 +291,7 @@ class GameBoard {
             boolean newHit = hitShip(p).equals("new hit");
             cellsNoFog[p.i][p.j] = Globals.HIT_SHIP_CELL;
             cellsWithFog[p.i][p.j] = Globals.HIT_SHIP_CELL;
-            print2(cellsWithFog);
+            print(cellsWithFog);
 
             if (newHit && Ship.sunkAShip(p, cellsNoFog)) {
                 numShipsSunk++;
@@ -311,7 +303,7 @@ class GameBoard {
         } else {
             cellsNoFog[p.i][p.j] = Globals.MISSED_CELL;
             cellsWithFog[p.i][p.j] = Globals.MISSED_CELL;
-            print2(cellsWithFog);
+            print(cellsWithFog);
             System.out.println("You missed!");
 
         }
@@ -331,31 +323,43 @@ class GameBoard {
 
 public class Main {
     public static void main(String[] args) {
-        GameBoard board = new GameBoard();
+        GameBoard board1 = new GameBoard();
         System.out.println("Player 1, place your ships on the game field");
-        board.print(board.getCellsNoFog());
+        GameBoard.print(board1.getCellsNoFog());
         while (Ship.getIndex() < 5) {
             System.out.printf("\nEnter the coordinates of the %s (%s cells):\n%n", Ship.getCurrentShip().getName(), Ship.getCurrentShip().getLength());
-            board.placeNextShip();
+            board1.placeNextShip();
         }
 
         Ship.resetIndex();
         GameBoard board2 = new GameBoard();
         System.out.println("Player 2, place your ships on the game field");
-        board2.print(board2.getCellsNoFog());
+        GameBoard.print(board2.getCellsNoFog());
+
         while (Ship.getIndex() < 5) {
             System.out.printf("\nEnter the coordinates of the %s (%s cells):\n%n", Ship.getCurrentShip().getName(), Ship.getCurrentShip().getLength());
             board2.placeNextShip();
         }
 
-        System.out.println("The game starts!");
-        board.print2(board.getCellsWithFog());
 
-        while (board.numShipsSunk() < 5) {
-            board.shoot();
+        while (board1.numShipsSunk() < 5 && board2.numShipsSunk() < 5) {
+            System.out.println("Press Enter and pass the move to another player");
+            GameBoard.print(board1.getCellsWithFog());
+            System.out.println("---------------------");
+            GameBoard.print(board2.getCellsNoFog());
+            System.out.println("Player 1, it's your turn:");
+            board1.shoot();
+
+
+            System.out.println("Press Enter and pass the move to another player");
+            GameBoard.print(board2.getCellsWithFog());
+            System.out.println("---------------------");
+            GameBoard.print(board1.getCellsNoFog());
+            System.out.println("Player 2, it's your turn:");
+            board2.shoot();
 
         }
-        System.out.println("You sank the last ship. You won. Congratulations!");
+        //System.out.println("You sank the last ship. You won. Congratulations!");
     }
 }
 
