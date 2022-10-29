@@ -10,10 +10,10 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 class Globals {
-    static final char EMPTY_CELL = '~';
-    static final char SHIP_CELL = 'O';
-    static final char MISSED_CELL = 'M';
-    static final char HIT_SHIP_CELL = 'X';
+    static final char EMPTY_CELL = '⬜';
+    static final char SHIP_CELL = '⚓';
+    static final char MISSED_CELL = '⭕';
+    static final char HIT_SHIP_CELL = '❌';
 
 }
 
@@ -181,9 +181,9 @@ class BoardPrinter {
     }
 
     private void printFirstRow(int LENGTH, int[][] cells) {
-        System.out.print((char) cells[0][0] + " ");
+        System.out.print((char) cells[0][0] + "  ");
         for (int i = 1; i < LENGTH + 1; i++) {
-            if (i < LENGTH) System.out.print(cells[0][i] + " ");
+            if (i < LENGTH) System.out.print(cells[0][i] + "  ");
             else System.out.print(cells[0][i]);
         }
         System.out.println();
@@ -239,37 +239,28 @@ class GameBoard {
     private void initializeCells() {
         for (int i = 0; i < LENGTH + 1; i++) {
             Arrays.fill(cellsNoFog[i], Globals.EMPTY_CELL);
-        }
-        for (int i = 0; i < LENGTH + 1; i++) {
             Arrays.fill(cellsWithFog[i], Globals.EMPTY_CELL);
-        }
-        for (int i = 0; i < LENGTH + 1; i++) {
             Arrays.fill(emptyCells[i], Globals.EMPTY_CELL);
         }
     }
 
     private void initializeFirstColumn() {
+
         for (int i = 1; i < LENGTH + 1; i++) {
             cellsNoFog[i][0] = 'A' + i - 1;
-        }
-        for (int i = 1; i < LENGTH + 1; i++) {
             cellsWithFog[i][0] = 'A' + i - 1;
-        }
-        for (int i = 1; i < LENGTH + 1; i++) {
             emptyCells[i][0] = 'A' + i - 1;
         }
+
     }
 
     private void initializeFirstRow() {
         for (int i = 1; i < LENGTH + 1; i++) {
             cellsNoFog[0][i] = i;
-        }
-        for (int i = 1; i < LENGTH + 1; i++) {
             cellsWithFog[0][i] = i;
-        }
-        for (int i = 1; i < LENGTH + 1; i++) {
             emptyCells[0][i] = i;
         }
+
     }
 
     public void placeNextShip() {
