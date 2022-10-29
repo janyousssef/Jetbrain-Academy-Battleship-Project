@@ -330,7 +330,7 @@ public class Main {
     public static void promptEnterKey() {
         System.out.println("Press Enter and pass the move to another player");
         try {
-            System.in.read();
+            var ignored =System.in.read();
         } catch (IOException e) {
             e.printStackTrace();
         }
